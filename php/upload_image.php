@@ -6,6 +6,16 @@
  */
 require_once 'connection.php';
 
+function getImage ( $imgName, $imgSize )
+{
+	$fileOpened = fopen( $imgName, "rb" );
+	$image = fread( $fileOpened, $imgSize );
+	$image = addslashes( $image );
+	fclose( $fileOpened );
+
+	return $image;
+}
+
 class Upload
 {
 	private $table = null;
@@ -41,7 +51,7 @@ class Upload
 if( !isset( $_FILES['image'] ) )
 {
 	echo json_encode( array( 'status' => 'tipo nao aceito', 'className' => 'fail') );
-	die( "" );
+	die();
 }
 
 $imageSize = $_FILES['image']['size'];
@@ -49,22 +59,20 @@ $imageTmpName = $_FILES['image']['tmp_name'];
 $imageType = $_FILES['image']['type'];
 
 $typeIsNotAcepted = $imageType != 'image/jpeg' && $imageType != 'image/png' && $imageType != 'image/gif';
+
 if ( $typeIsNotAcepted )
 {
 	echo json_encode( array( 'status' => 'tipo nao aceito', 'className' => 'fail') );
-	die( "" );
+	die();
 }
 
 if ( !$imageTmpName )
 {
 	echo json_encode( array( 'status' => 'falha', 'className' => 'fail') );
-	die( "" );
+	die();
 }
 
-$fileOpened = fopen( $imageTmpName, "rb" );
-$image = fread( $fileOpened, $imageSize );
-$image = addslashes( $image );
-fclose( $fileOpened );
+$image = getImage( $imageTmpName, $imageSize );
 
 $fields = array( 'image' );
 $values = array( $image );
